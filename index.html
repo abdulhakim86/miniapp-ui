@@ -2,179 +2,114 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TG Mini App</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSphere</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <style>
-        /* Мы используем CSS-переменные Telegram, чтобы приложение идеально 
-           сливалось с темой пользователя (темной или светлой) */
         body {
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            /* Защита от скролла и выделения текста для ощущения нативного 앱a */
-            user-select: none;
-            -webkit-user-select: none;
-            overflow-x: hidden;
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f4f4f0; 
+            color: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .tg-button {
-            background-color: var(--tg-theme-button-color, #3390ec);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            transition: opacity 0.2s;
+        
+        /* 2D Стикер-стиль */
+        .sticker-card {
+            background: #ffffff;
+            border: 4px solid #111;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 6px 6px 0px #111; /* Резкая смещенная тень */
+            margin-top: 30px;
+            position: relative;
         }
-        .tg-button:active {
-            opacity: 0.7;
+        
+        /* Декоративный стикер сбоку */
+        .badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: #ff4757;
+            color: white;
+            font-weight: bold;
+            padding: 8px 12px;
+            border: 3px solid #111;
+            border-radius: 50px;
+            transform: rotate(15deg);
+            box-shadow: 3px 3px 0px #111;
         }
-        .tg-secondary-bg {
-            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+        
+        h1 {
+            font-size: 26px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .tg-hint {
-            color: var(--tg-theme-hint-color, #999999);
+        
+        p {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .user-name {
+            color: #2ed573;
+            font-weight: 900;
+            font-size: 18px;
+            background: #111;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-left: 5px;
+        }
+        
+        button {
+            margin-top: 25px;
+            background: #ffa502;
+            color: #111;
+            border: 4px solid #111;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 4px 4px 0px #111;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        
+        button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #111;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 font-sans antialiased flex flex-col items-center">
+<body>
 
-    <div class="w-full max-w-md mx-auto space-y-6 mt-4">
-        
-        <!-- Header -->
-        <div class="text-center space-y-2">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full tg-secondary-bg text-3xl mb-2 shadow-sm" id="user-avatar-placeholder">
-                👾
-            </div>
-            <h1 class="text-2xl font-bold" id="greeting">Привет, Бро!</h1>
-            <p class="tg-hint text-sm" id="user-id-text">Загрузка данных...</p>
-        </div>
-
-        <!-- User Info Card -->
-        <div class="tg-secondary-bg rounded-2xl p-4 shadow-sm border border-gray-200/10">
-            <h2 class="text-sm font-semibold uppercase tracking-wider mb-3 tg-hint">Твои данные из ТГ</h2>
-            <div class="space-y-3 text-sm">
-                <div class="flex justify-between items-center border-b border-gray-200/20 pb-2">
-                    <span class="tg-hint">Имя:</span>
-                    <span id="first-name" class="font-medium">-</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-gray-200/20 pb-2">
-                    <span class="tg-hint">Юзернейм:</span>
-                    <span id="username" class="font-medium">-</span>
-                </div>
-                <div class="flex justify-between items-center pb-1">
-                    <span class="tg-hint">Премиум:</span>
-                    <span id="is-premium" class="font-medium">-</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="space-y-3 pt-2">
-            <button onclick="showMainButton()" class="w-full py-3 px-4 rounded-xl tg-secondary-bg font-semibold flex items-center justify-center space-x-2 active:scale-95 transition-transform">
-                <span>🪄 Показать главную кнопку</span>
-            </button>
-            
-            <button onclick="showHapticFeedback()" class="w-full py-3 px-4 rounded-xl tg-secondary-bg font-semibold flex items-center justify-center space-x-2 active:scale-95 transition-transform">
-                <span>📳 Тест вибрации (Haptic)</span>
-            </button>
-
-            <button onclick="closeApp()" class="w-full py-3 px-4 rounded-xl bg-red-500/10 text-red-500 font-semibold active:scale-95 transition-transform">
-                ❌ Закрыть приложение
-            </button>
-        </div>
-        
-        <!-- Status log -->
-        <div id="status-log" class="text-center text-xs tg-hint mt-4 h-6">
-            Ожидание действий...
-        </div>
-
+    <div class="sticker-card">
+        <div class="badge">BETA</div>
+        <h1>MediSphere Archive</h1>
+        <p>Привет, <span class="user-name" id="username">студент</span>!</p>
+        <p>Интерактивный архив готов к работе.</p>
+        <button onclick="tg.close()">Закрыть</button>
     </div>
 
     <script>
-        // Инициализация объекта Telegram Web App
-        const tg = window.Telegram.WebApp;
-
-        // Расширяем приложение на весь экран (убирает полосу сверху)
+        // Инициализация Telegram Web App
+        let tg = window.Telegram.WebApp;
         tg.expand();
-
-        // Сообщаем телеге, что приложение готово к отображению
-        tg.ready();
-
-        // Получаем данные пользователя безопасно из initDataUnsafe
-        const user = tg.initDataUnsafe?.user;
-
-        if (user) {
-            // Обновляем UI данными из ТГ
-            document.getElementById('greeting').textContent = `Привет, ${user.first_name}!`;
-            document.getElementById('user-id-text').textContent = `Твой ID: ${user.id}`;
-            document.getElementById('first-name').textContent = user.first_name || 'Нет';
-            document.getElementById('username').textContent = user.username ? `@${user.username}` : 'Нет';
-            document.getElementById('is-premium').textContent = user.is_premium ? 'Да ⭐️' : 'Нет';
-            
-            // Если есть фото, можно поставить его (ТГ не всегда отдает фото по умолчанию в WebApp)
-            if (user.photo_url) {
-                const avatar = document.getElementById('user-avatar-placeholder');
-                avatar.innerHTML = `<img src="${user.photo_url}" class="w-full h-full rounded-full object-cover" alt="avatar">`;
-            } else {
-                // Генерируем эмодзи по первой букве имени
-                document.getElementById('user-avatar-placeholder').textContent = user.first_name.charAt(0);
-            }
-        } else {
-            // Если открыли просто в браузере, а не в ТГ
-            document.getElementById('greeting').textContent = 'Открой меня в Telegram!';
-            document.getElementById('user-id-text').textContent = 'Данные недоступны вне мессенджера';
-        }
-
-        // Функция для показа нативной "Main Button" внизу экрана ТГ
-        function showMainButton() {
-            if (tg.MainButton.isVisible) {
-                tg.MainButton.hide();
-                logStatus("Главная кнопка скрыта");
-            } else {
-                tg.MainButton.text = "ОТПРАВИТЬ ДАННЫЕ БОТУ";
-                tg.MainButton.color = tg.themeParams.button_color || "#3390ec";
-                tg.MainButton.show();
-                logStatus("Главная кнопка показана");
-                
-                // Назначаем действие на клик по главной кнопке
-                tg.MainButton.onClick(() => {
-                    // Отправляем данные обратно боту (работает только если открыто через Keyboard Button)
-                    // Для Inline-кнопок нужно использовать API бэкенда.
-                    try {
-                        tg.sendData(JSON.stringify({ action: "test_data", user_id: user?.id }));
-                        tg.close();
-                    } catch (e) {
-                        logStatus("Отправка данных возможна только через Keyboard Button");
-                        tg.HapticFeedback.notificationOccurred('error');
-                    }
-                });
-            }
-        }
-
-        function showHapticFeedback() {
-            // Нативная вибрация телефона (если поддерживается)
-            tg.HapticFeedback.impactOccurred('heavy');
-            logStatus("Вибрация сработала (на телефоне)");
-        }
-
-        function closeApp() {
-            // Закрыть Web App
-            tg.close();
-        }
         
-        function logStatus(text) {
-            const logEl = document.getElementById('status-log');
-            logEl.textContent = text;
-            logEl.style.opacity = '1';
-            
-            // Легкая анимация мигания
-            logEl.classList.add('animate-pulse');
-            setTimeout(() => logEl.classList.remove('animate-pulse'), 500);
-        }
-
-        // Меняем цвета шапки приложения в самом ТГ под цвет фона
-        if (tg.themeParams.bg_color) {
-            tg.setHeaderColor(tg.themeParams.bg_color);
-        }
+        // Вытаскиваем имя пользователя (или ставим дефолтное, если открыли вне ТГ)
+        let username = tg.initDataUnsafe?.user?.first_name || "хирург";
+        document.getElementById("username").innerText = username;
+        
+        tg.ready();
     </script>
 </body>
 </html>
